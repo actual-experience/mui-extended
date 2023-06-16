@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export const useStateWithWebStorage = <T>(
-  webStorage: Storage,
+  webStorage: Storage | undefined,
   webStorageKey: string,
   initialValue: T
 ): [T, (value: T) => void, boolean] => {

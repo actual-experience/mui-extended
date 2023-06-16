@@ -12,7 +12,7 @@ import { useFormContext } from "./FormContext";
 
 export const withResetButton = <T extends { onClick?: MouseEventHandler }>(
   Button: FunctionComponent<T>
-): FunctionComponent<T> => {
+) => {
   const ButtonWrapper: typeof Button = props => {
     debugRender("resetButton");
     return <Button {...props} />;
@@ -27,10 +27,6 @@ export const withResetButton = <T extends { onClick?: MouseEventHandler }>(
   ) {
     const formContext = useFormContext();
 
-    if (!formContext) {
-      throw new Error("ResetButton is rendered with out Form");
-    }
-
     const onClick = useMemo(() => {
       return (event: MouseEvent) => {
         formContext.reset();
@@ -41,17 +37,17 @@ export const withResetButton = <T extends { onClick?: MouseEventHandler }>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return <PureButton {...(props as T)} onClick={onClick} ref={ref} />;
+    return <PureButton {...props} onClick={onClick} ref={ref} />;
   });
 
-  return DecoratedButton as FunctionComponent<T>;
+  return DecoratedButton;
 };
 
 export const withSubmitButton = <
   T extends { onClick?: MouseEventHandler; disabled?: boolean }
 >(
   Button: FunctionComponent<T>
-): FunctionComponent<T> => {
+) => {
   const ButtonWrapper: typeof Button = props => {
     debugRender("submitButton");
     return <Button {...props} />;
@@ -69,10 +65,6 @@ export const withSubmitButton = <
     ref
   ) {
     const formContext = useFormContext();
-
-    if (!formContext) {
-      throw new Error("SubmitButton is rendered with out Form");
-    }
 
     const onClick = useMemo(() => {
       return (event: MouseEvent) => {
@@ -98,5 +90,5 @@ export const withSubmitButton = <
     );
   });
 
-  return DecoratedButton as FunctionComponent<T>;
+  return DecoratedButton;
 };

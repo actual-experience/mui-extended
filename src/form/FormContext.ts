@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react";
+import { createContext } from "react";
+import { useSafeContext } from "../utils/useSafeContext";
 
 export type FormContextType<
   T extends Record<string, unknown> = Record<string, unknown>
@@ -15,10 +16,10 @@ export type FormContextType<
   reset: () => void;
 };
 
-export const FormContext = createContext<FormContextType>(null);
+export const FormContext = createContext<FormContextType | null>(null);
+
+FormContext.displayName = "FormContext";
 
 export const useFormContext = <
   T extends Record<string, unknown> = Record<string, unknown>
->() => {
-  return useContext(FormContext) as FormContextType<T>;
-};
+>() => useSafeContext(FormContext, undefined, "Form") as FormContextType<T>;

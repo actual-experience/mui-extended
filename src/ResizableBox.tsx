@@ -8,11 +8,11 @@ export type ResizableBoxProps = Omit<BoxProps, "onResize"> & {
 
 export class ResizableBox extends Component<ResizableBoxProps> {
   private privateRef: RefObject<HTMLDivElement>;
-  private resizeObserver: ResizeObserver;
+  private resizeObserver: ResizeObserver | undefined;
 
-  private jobId: ReturnType<typeof setTimeout>;
-  private width: number;
-  private height: number;
+  private jobId: ReturnType<typeof setTimeout> | undefined;
+  private width = 0;
+  private height = 0;
 
   constructor(props: ResizableBoxProps) {
     super(props);

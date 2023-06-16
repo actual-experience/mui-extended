@@ -71,7 +71,9 @@ const ControlledAutocomplete = forwardRef(
   }
 );
 
-export const FormAutocomplete = withFormField(ControlledAutocomplete) as <
+export const FormAutocomplete = withFormField(
+  ControlledAutocomplete
+) as unknown as <
   T,
   Multiple extends boolean | undefined = undefined,
   DisableClearable extends boolean | undefined = undefined,

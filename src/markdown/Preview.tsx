@@ -15,7 +15,12 @@ import {
   IconButton,
   Tooltip
 } from "@mui/material";
-import { createContext, FunctionComponent, useContext } from "react";
+import {
+  ComponentPropsWithoutRef,
+  createContext,
+  FunctionComponent,
+  useContext
+} from "react";
 import ReactMarkdown, { Components, Options } from "react-markdown";
 import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
@@ -92,7 +97,7 @@ const SyntaxHighLightedCodeComponent: Components["code"] = ({
   );
 };
 
-const H1 = props => (
+const H1: Components["h1"] = props => (
   <Typography
     {...props}
     variant="h4"
@@ -101,7 +106,7 @@ const H1 = props => (
   />
 );
 
-const H2 = props => (
+const H2: Components["h2"] = props => (
   <Typography
     {...props}
     variant="h5"
@@ -110,7 +115,7 @@ const H2 = props => (
   />
 );
 
-const H3 = props => (
+const H3: Components["h3"] = props => (
   <Typography
     {...props}
     variant="h6"
@@ -119,7 +124,7 @@ const H3 = props => (
   />
 );
 
-const H4 = props => (
+const H4: Components["h4"] = props => (
   <Typography
     {...props}
     variant="subtitle1"
@@ -128,7 +133,7 @@ const H4 = props => (
   />
 );
 
-const H5 = props => (
+const H5: Components["h5"] = props => (
   <Typography
     {...props}
     variant="subtitle2"
@@ -136,28 +141,30 @@ const H5 = props => (
     sx={{ marginTop: 0.5, fontWeight: "bold" }}
   />
 );
-const H6 = props => (
+const H6: Components["h6"] = props => (
   <Typography
     {...props}
     variant="subtitle2"
     variantMapping={{ subtitle2: "h6" }}
   />
 );
-const P = props => <Typography {...props} variant="body1" py={1} />;
-const Blockquote = ({ children, ...props }) => (
+const P: Components["p"] = props => (
+  <Typography {...props} variant="body1" py={1} />
+);
+const Blockquote: Components["blockquote"] = ({ children, ...props }) => (
   <blockquote {...props} style={{ margin: "16px 0 16px 0" }}>
     <Alert icon={false} severity="info" color="info" sx={{ my: 1, py: 0 }}>
       {children}
     </Alert>
   </blockquote>
 );
-const TableComponent = props => (
+const TableComponent: Components["table"] = props => (
   <TableContainer component={Paper}>
     <Table {...props} size="small" />
   </TableContainer>
 );
-const Img = props => {
-  const propsFromTitle = {};
+const Img: Components["img"] = props => {
+  const propsFromTitle: ComponentPropsWithoutRef<"img"> = {};
   if (props.title) {
     const [title, attrs] = props.title.split("?", 2);
     propsFromTitle["title"] = title;
@@ -170,9 +177,9 @@ const Img = props => {
   return <img {...props} {...propsFromTitle} alt={props.alt} />;
 };
 
-const A = props => {
+const A: Components["a"] = props => {
   return (
-    <Link href={props.href}>
+    <Link href={props.href ?? "#"}>
       <MuiLink {...props} />
     </Link>
   );

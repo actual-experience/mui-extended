@@ -1,7 +1,8 @@
 import { capitalize, isEqualWith, snakeCase, words } from "lodash";
 import {
+  ComponentType,
   forwardRef,
-  FunctionComponent,
+  ForwardRefExoticComponent,
   memo,
   PropsWithChildren,
   ReactNode,
@@ -29,7 +30,11 @@ export type FormFieldAttributes = ControlledInputAttributes & {
   disabled?: boolean;
 };
 
-export type FormFieldProps<T extends FormFieldAttributes> = Omit<
+type DistributiveOmit<T, K extends PropertyKey> = T extends any
+  ? Omit<T, K>
+  : never;
+
+export type FormFieldProps<T extends FormFieldAttributes> = DistributiveOmit<
   T,
   keyof ControlledInputAttributes
 > &
@@ -38,8 +43,8 @@ export type FormFieldProps<T extends FormFieldAttributes> = Omit<
   RefAttributes<HTMLDivElement>;
 
 export const withFormField = <T extends PropsWithChildren<FormFieldAttributes>>(
-  FormFieldComponent: FunctionComponent<T>
-): FunctionComponent<FormFieldProps<T>> => {
+  FormFieldComponent: ComponentType<T> | ForwardRefExoticComponent<T>
+) => {
   const PureFormFieldComponent = memo(
     FormFieldComponent,
     (prevProps, nextProps) => {
@@ -96,7 +101,7 @@ export const withFormField = <T extends PropsWithChildren<FormFieldAttributes>>(
 
     return (
       <PureFormFieldComponent
-        {...(props as T)}
+        {...(props as any)}
         name={name}
         label={_label}
         value={value}
@@ -111,5 +116,5 @@ export const withFormField = <T extends PropsWithChildren<FormFieldAttributes>>(
       </PureFormFieldComponent>
     );
   });
-  return DecoratedFormField as FunctionComponent<FormFieldProps<T>>;
+  return DecoratedFormField;
 };
