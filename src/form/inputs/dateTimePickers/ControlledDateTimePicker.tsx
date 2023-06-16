@@ -4,20 +4,19 @@ import {
   TimePickerProps
 } from "@mui/x-date-pickers";
 
-import { FocusEvent, FunctionComponent, useMemo } from "react";
+import { ComponentType, FocusEvent, useMemo } from "react";
 import { debugRender } from "../../debug";
 import { FormFieldAttributes } from "../../FormField";
 
 export const withControlledDateTimePicker = <
-  T,
-  TD extends
-    | DatePickerProps<T, TD>
-    | DateTimePickerProps<T, TD>
-    | TimePickerProps<T, TD>
+  Props extends
+    | DatePickerProps<any, any>
+    | DateTimePickerProps<any, any>
+    | TimePickerProps<any, any>
 >(
-  Picker: (props: T & TD) => JSX.Element
-): FunctionComponent<T & TD & FormFieldAttributes> => {
-  const DecoratedPicker: FunctionComponent<T & TD & FormFieldAttributes> = ({
+  Picker: ComponentType<Props>
+) => {
+  const DecoratedPicker = ({
     name,
     onChange,
     onBlur,
@@ -26,11 +25,11 @@ export const withControlledDateTimePicker = <
     renderInput,
     DialogProps = {},
     ...props
-  }) => {
+  }: Props & FormFieldAttributes) => {
     debugRender(name);
 
     const _onChange = useMemo(
-      () => value => {
+      () => (value: unknown) => {
         onChange(name, value);
       },
       [onChange, name]
@@ -43,15 +42,13 @@ export const withControlledDateTimePicker = <
     const _onBlur = useMemo(
       () => (event: FocusEvent<HTMLInputElement>) => {
         let propagate = true;
-        if (event.relatedTarget) {
-          let relatedTarget = event.relatedTarget;
-          while (relatedTarget.tagName != "BODY") {
-            if (relatedTarget.id == dialogId) {
-              propagate = false;
-              break;
-            }
-            relatedTarget = relatedTarget.parentElement;
+        let relatedTarget = event.relatedTarget;
+        while (relatedTarget && relatedTarget.tagName != "BODY") {
+          if (relatedTarget.id == dialogId) {
+            propagate = false;
+            break;
           }
+          relatedTarget = relatedTarget.parentElement;
         }
 
         if (propagate) {
@@ -63,7 +60,7 @@ export const withControlledDateTimePicker = <
 
     return (
       <Picker
-        {...(props as T & TD)}
+        {...(props as any)}
         renderInput={params => {
           return renderInput({
             ...params,

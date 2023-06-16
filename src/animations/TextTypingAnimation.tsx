@@ -20,7 +20,7 @@ export class TextTypingAnimation extends Component<
   TextTypingAnimationState
 > {
   private stopCurrentLoop = true;
-  private currentLoop: Promise<void>;
+  private currentLoop = Promise.resolve<void>(undefined);
 
   constructor(props: TextTypingAnimationProps) {
     super(props);
@@ -42,7 +42,7 @@ export class TextTypingAnimation extends Component<
     this.stopCurrentLoop = true;
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: TextTypingAnimationProps) {
     if (
       !isEqualWith(this.props, prevProps, (value, other, key) => {
         if (key == "onComplete") {

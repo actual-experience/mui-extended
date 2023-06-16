@@ -40,9 +40,11 @@ const ControlledFileInput: FunctionComponent<
 }) => {
   const _onChange = useMemo(() => {
     return (event: ChangeEvent<HTMLInputElement>) => {
-      const _value = multiple
-        ? Array.from(event.target.files)
-        : event.target.files.item(0);
+      const _value =
+        event.target.files &&
+        (multiple
+          ? Array.from(event.target.files)
+          : event.target.files.item(0));
       onChange(event.target.name, _value);
     };
   }, [onChange, multiple]);

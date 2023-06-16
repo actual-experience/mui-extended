@@ -2,18 +2,18 @@ import { Box, SxProps } from "@mui/material";
 import { FunctionComponent, MouseEventHandler, TouchEventHandler } from "react";
 
 export type ResizerProps = {
-  onClick: MouseEventHandler;
-  onDoubleClick: MouseEventHandler;
-  onMouseDown: MouseEventHandler;
-  onTouchStart: TouchEventHandler;
-  onTouchEnd: TouchEventHandler;
-  size: number;
-  sx: SxProps;
-  split: "vertical" | "horizontal";
+  onClick?: MouseEventHandler;
+  onDoubleClick?: MouseEventHandler;
+  onMouseDown?: MouseEventHandler;
+  onTouchStart?: TouchEventHandler;
+  onTouchEnd?: TouchEventHandler;
+  size?: number;
+  sx?: SxProps;
+  split?: "vertical" | "horizontal";
 };
 
 export const Resizer: FunctionComponent<ResizerProps> = ({
-  size,
+  size = "horizontal",
   split,
   sx,
   onClick,
@@ -54,24 +54,32 @@ export const Resizer: FunctionComponent<ResizerProps> = ({
         ...styles,
         ...sx
       }}
-      onMouseDown={event => onMouseDown(event)}
+      onMouseDown={event => {
+        if (onMouseDown) {
+          onMouseDown(event);
+        }
+      }}
       onTouchStart={event => {
         event.preventDefault();
-        onTouchStart(event);
+        if (onTouchStart) {
+          onTouchStart(event);
+        }
       }}
       onTouchEnd={event => {
         event.preventDefault();
-        onTouchEnd(event);
+        if (onTouchEnd) {
+          onTouchEnd(event);
+        }
       }}
       onClick={event => {
+        event.preventDefault();
         if (onClick) {
-          event.preventDefault();
           onClick(event);
         }
       }}
       onDoubleClick={event => {
+        event.preventDefault();
         if (onDoubleClick) {
-          event.preventDefault();
           onDoubleClick(event);
         }
       }}

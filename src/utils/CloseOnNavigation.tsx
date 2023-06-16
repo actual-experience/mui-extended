@@ -18,7 +18,7 @@ type MuiExtReplaceableHistoryState = {
 };
 
 class MuiExtReplaceableHistory {
-  private static instanse: MuiExtReplaceableHistory;
+  private static instance: MuiExtReplaceableHistory;
   private stateStack: (MuiExtReplaceableHistoryState | unknown)[] = [];
 
   private constructor() {
@@ -27,11 +27,11 @@ class MuiExtReplaceableHistory {
     }
   }
 
-  public static getInstanse() {
-    if (!this.instanse) {
-      this.instanse = new MuiExtReplaceableHistory();
+  public static getInstance() {
+    if (!this.instance) {
+      this.instance = new MuiExtReplaceableHistory();
     }
-    return this.instanse;
+    return this.instance;
   }
 
   getTopState(): MuiExtReplaceableHistoryState | unknown {
@@ -92,7 +92,7 @@ class MuiExtReplaceableHistory {
         type: "MuiExt-replaceable-state",
         callback
       } as MuiExtReplaceableHistoryState,
-      null
+      ""
     );
   }
 
@@ -104,18 +104,52 @@ class MuiExtReplaceableHistory {
   }
 }
 
+export const createSyntheticEvent = <T extends Element, E extends Event>(
+  event: E
+): React.SyntheticEvent<T, E> => {
+  let isDefaultPrevented = false;
+  let isPropagationStopped = false;
+  const preventDefault = () => {
+    isDefaultPrevented = true;
+    event.preventDefault();
+  };
+  const stopPropagation = () => {
+    isPropagationStopped = true;
+    event.stopPropagation();
+  };
+  return {
+    nativeEvent: event,
+    currentTarget: event.currentTarget as EventTarget & T,
+    target: event.target as EventTarget & T,
+    bubbles: event.bubbles,
+    cancelable: event.cancelable,
+    defaultPrevented: event.defaultPrevented,
+    eventPhase: event.eventPhase,
+    isTrusted: event.isTrusted,
+    preventDefault,
+    isDefaultPrevented: () => isDefaultPrevented,
+    stopPropagation,
+    isPropagationStopped: () => isPropagationStopped,
+    persist: () => {
+      // don't do anythiung
+    },
+    timeStamp: event.timeStamp,
+    type: event.type
+  };
+};
+
 export const withCloseOnNavigation = <
   T extends PropsWithChildren<CloseOnNavigationProps>
 >(
   Modal: FunctionComponent<T> | JSXElementConstructor<T>
-): FunctionComponent<T> => {
+) => {
   const ImprovedModal = forwardRef<HTMLDivElement, T>(
     function ModalWithNavigationClose({ children, ...props }, ref) {
       useEffect(() => {
-        const history = MuiExtReplaceableHistory.getInstanse();
+        const history = MuiExtReplaceableHistory.getInstance();
         if (props.open) {
           history.pushState(() => {
-            props.onClose(null);
+            props.onClose(createSyntheticEvent(new Event("navigation")));
           });
         } else {
           history.back();
@@ -131,5 +165,5 @@ export const withCloseOnNavigation = <
     }
   );
 
-  return ImprovedModal as FunctionComponent<T>;
+  return ImprovedModal;
 };

@@ -29,12 +29,12 @@ import {
 import { format } from "prettier";
 import markdownParser from "prettier/parser-markdown";
 import {
+  ComponentType,
   createRef,
   FocusEvent,
   FocusEventHandler,
   forwardRef,
   Fragment,
-  FunctionComponent,
   MouseEventHandler,
   ReactNode,
   SyntheticEvent,
@@ -43,6 +43,7 @@ import {
 import { useMobile } from "../utils/useMobile";
 import InlineCodeIcon from "./icons/inlineCode";
 import { MarkdownPreview } from "./Preview";
+import { createSyntheticEvent } from "../utils";
 
 export type MarkdownEditorMenuButtonAction = (
   name: string,
@@ -53,11 +54,13 @@ export type MarkdownEditorMenuButtonAction = (
 
 export type MarkdownEditorMenuButtonProps = IconButtonProps;
 
-export const MarkdownEditorMenuButton: FunctionComponent<
-  MarkdownEditorMenuButtonProps & {
-    title: ReactNode;
-  }
-> = ({ children, title, ...props }) => {
+export const MarkdownEditorMenuButton = ({
+  children,
+  title,
+  ...props
+}: MarkdownEditorMenuButtonProps & {
+  title: ReactNode;
+}) => {
   return (
     <Tooltip title={title} arrow placement="top">
       <span>
@@ -80,7 +83,7 @@ const defaultMenu: string[][] = [
 
 const DefaultButtons: Record<
   string,
-  FunctionComponent<MarkdownEditorMenuButtonProps>
+  ComponentType<MarkdownEditorMenuButtonProps>
 > = {
   bold: props => (
     <MarkdownEditorMenuButton title="Bold" {...props}>
@@ -485,19 +488,16 @@ const defaultActions: Record<string, MarkdownEditorMenuButtonAction> = {
 export type MarkdownEditorMenuProps = {
   onClick: (name: string) => void;
   menu?: string[][];
-  menuButtons?: Record<
-    string,
-    FunctionComponent<MarkdownEditorMenuButtonProps>
-  >;
+  menuButtons?: Record<string, ComponentType<MarkdownEditorMenuButtonProps>>;
   disabled?: boolean;
 };
 
-export const MarkdownEditorMenu: FunctionComponent<MarkdownEditorMenuProps> = ({
+export const MarkdownEditorMenu = ({
   onClick,
   menu,
   menuButtons,
   disabled
-}) => {
+}: MarkdownEditorMenuProps) => {
   const _menu = menu || defaultMenu;
   const _menuButtons = { ...DefaultButtons, ...menuButtons };
   return (
@@ -538,9 +538,12 @@ export type MarkdownEditorHeaderProps = MarkdownEditorMenuProps & {
   onViewChange: (selected: MarkdownEditorViewType) => void;
 };
 
-export const MarkdownEditorHeader: FunctionComponent<
-  MarkdownEditorHeaderProps
-> = ({ hideTabs, selectedView, onViewChange, ...menuProps }) => {
+export const MarkdownEditorHeader = ({
+  hideTabs,
+  selectedView,
+  onViewChange,
+  ...menuProps
+}: MarkdownEditorHeaderProps) => {
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     onViewChange(newValue == 0 ? "write" : "preview");
   };
@@ -604,40 +607,6 @@ export const MarkdownEditorContent = forwardRef<
   );
 });
 
-const createSyntheticEvent = <T extends Element, E extends Event>(
-  event: E
-): React.SyntheticEvent<T, E> => {
-  let isDefaultPrevented = false;
-  let isPropagationStopped = false;
-  const preventDefault = () => {
-    isDefaultPrevented = true;
-    event.preventDefault();
-  };
-  const stopPropagation = () => {
-    isPropagationStopped = true;
-    event.stopPropagation();
-  };
-  return {
-    nativeEvent: event,
-    currentTarget: event.currentTarget as EventTarget & T,
-    target: event.target as EventTarget & T,
-    bubbles: event.bubbles,
-    cancelable: event.cancelable,
-    defaultPrevented: event.defaultPrevented,
-    eventPhase: event.eventPhase,
-    isTrusted: event.isTrusted,
-    preventDefault,
-    isDefaultPrevented: () => isDefaultPrevented,
-    stopPropagation,
-    isPropagationStopped: () => isPropagationStopped,
-    persist: () => {
-      // don't do anythiung
-    },
-    timeStamp: event.timeStamp,
-    type: event.type
-  };
-};
-
 const createChangeEvent = (
   target: HTMLTextAreaElement
 ): React.ChangeEvent<HTMLTextAreaElement> => {
@@ -683,7 +652,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       menu,
       menuButtons,
       menuActions,
-      inlinePreview: alwaysPreview,
+      inlinePreview: alwaysPreview = false,
       onBlur,
       ...props
     },
@@ -723,22 +692,22 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       if (!props.disabled) {
         let propagate = true;
         let relatedTarget = event.relatedTarget;
-        if (relatedTarget) {
-          while (relatedTarget.tagName != "BODY") {
-            relatedTarget = relatedTarget.parentElement;
-            if (relatedTarget == event.currentTarget) {
-              propagate = false; // don't propagate blur event , if clicked within the editor widget
-              break;
-            }
+        while (relatedTarget && relatedTarget.tagName != "BODY") {
+          relatedTarget = relatedTarget?.parentElement ?? null;
+          if (relatedTarget == event.currentTarget) {
+            propagate = false; // don't propagate blur event , if clicked within the editor widget
+            break;
           }
         }
 
         if (propagate) {
-          if (event.target != textareaRef.current) {
+          if (event.target != textareaRef.current && textareaRef.current) {
             event.target = textareaRef.current;
           }
           onMenuButtonClick("format");
-          onBlur(event as FocusEvent<HTMLTextAreaElement>);
+          if (onBlur) {
+            onBlur(event as FocusEvent<HTMLTextAreaElement>);
+          }
         }
       }
     };

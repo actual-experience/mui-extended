@@ -252,7 +252,7 @@ const renderTreeNode = (
       nodeId={node.id + ""}
       label={improveLabel(node.label, improveLabels)}
       key={node.id}
-      ContentComponent={CustomTreeItemContent}
+      ContentComponent={CustomTreeItemContent as any}
       ContentProps={{
         // @ts-expect-error CustomTreeItemContent expects link
         link: getNearestLink(node),
@@ -272,7 +272,7 @@ export const TreeMenuWithNextLinks: FunctionComponent<
 > = ({ links, improveLabels, TreeViewProps, TreeItemProps, LinkComponent }) => {
   const topTreeNodes = convertLinksToTreeNodes(links);
 
-  const _treeViewProps = { ...TreeViewProps };
+  const _treeViewProps: TreeViewProps = { ...TreeViewProps };
 
   const treeViewSx = deepmerge(TreeViewProps?.sx || {}, {
     "& .MuiTreeItem-content": {

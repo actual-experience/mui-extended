@@ -46,7 +46,7 @@ export class Form<T extends Record<string, unknown>> extends Component<
     this.state = this._getInitialState();
   }
 
-  private _getInitialState(): typeof this.state {
+  private _getInitialState(): FormContextType<T> {
     return {
       values: cloneDeep(this.props.initialValues),
       errors: cloneDeep(this.props.initialErrors || {}),
@@ -84,7 +84,7 @@ export class Form<T extends Record<string, unknown>> extends Component<
       this.props.validators && this.props.validators[name]
         ? this.props.validators[name]
         : this.props.schemas && this.props.schemas[name]
-        ? getDefaultValidator(this.props.schemas[name])
+        ? getDefaultValidator(this.props.schemas[name]!)
         : undefined;
 
     if (validator) {
@@ -92,7 +92,7 @@ export class Form<T extends Record<string, unknown>> extends Component<
         await validator(name as string, this.state.values[name]);
         delete this.validationErrors[name];
       } catch (e) {
-        const errorMessage: string = e.message;
+        const errorMessage: string = e instanceof Error ? e.message : String(e);
         /***
          * TODO: handle error message properly here, for better readability
          */
@@ -154,7 +154,7 @@ export class Form<T extends Record<string, unknown>> extends Component<
 
   render() {
     return (
-      <FormContext.Provider value={this.state}>
+      <FormContext.Provider value={this.state as any}>
         {this.props.children}
       </FormContext.Provider>
     );

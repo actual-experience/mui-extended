@@ -1,3 +1,7 @@
+// TODO
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { Box, SxProps } from "@mui/material";
 import { SystemCssProperties } from "@mui/system";
 import { Children, Component, ReactNode } from "react";

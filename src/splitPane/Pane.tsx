@@ -41,7 +41,7 @@ export const Pane = forwardRef<HTMLDivElement, PropsWithChildren<PaneProps>>(
     }, [thisRef, ref]);
 
     useEffect(() => {
-      thisRef.current.scroll({ top: 0, left: 0 });
+      thisRef.current?.scroll({ top: 0, left: 0 });
     }, [thisRef, children]);
 
     return (

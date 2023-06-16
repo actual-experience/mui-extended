@@ -10,11 +10,11 @@ import {
   createContext,
   forwardRef,
   FunctionComponent,
-  useContext,
   useMemo
 } from "react";
 import { ControlledInputAttributes, withFormField } from "../FormField";
 import { withFormInputControl } from "./FormInputControl";
+import { useSafeContext } from "../../utils/useSafeContext";
 
 export type CheckboxGroupContextType = {
   name: string;
@@ -22,11 +22,14 @@ export type CheckboxGroupContextType = {
   onChange: ChangeEventHandler<HTMLInputElement>;
 };
 
-const CheckboxGroupContext = createContext<CheckboxGroupContextType>(null);
+const CheckboxGroupContext = createContext<CheckboxGroupContextType | null>(
+  null
+);
 
-export const useCheckboxGroup = () => {
-  return useContext(CheckboxGroupContext);
-};
+CheckboxGroupContext.displayName = "CheckboxGroupContext";
+
+export const useCheckboxGroup = () =>
+  useSafeContext(CheckboxGroupContext, undefined, "CheckboxGroup");
 
 export type CheckboxGroupProps = Omit<FormGroupProps, "onChange"> & {
   name: string;
@@ -64,7 +67,7 @@ export const CheckboxGroup: FunctionComponent<CheckboxGroupProps> = ({
 };
 
 export const FormCheckbox = forwardRef<
-  HTMLInputElement,
+  HTMLButtonElement,
   Omit<CheckboxProps, "checked" | "onChange" | "indeterminate"> &
     Required<Pick<CheckboxProps, "value">>
 >(function CheckboxWithGroup({ value, ...props }, ref) {
@@ -73,7 +76,8 @@ export const FormCheckbox = forwardRef<
   if (!groupContext) {
     throw new Error("FormCheckbox is used without CheckboxGroup");
   }
-  const checked = groupContext.values?.filter(v => v == value).length > 0;
+  const checked =
+    (groupContext.values?.filter(v => v == value).length || 0) > 0;
 
   return (
     <Checkbox

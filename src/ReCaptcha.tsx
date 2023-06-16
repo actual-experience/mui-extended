@@ -34,7 +34,11 @@ export class ReCaptchaProvider extends Component<
     siteKey: string;
   }>
 > {
-  constructor(props) {
+  constructor(
+    props: PropsWithChildren<{
+      siteKey: string;
+    }>
+  ) {
     super(props);
     this.getReCaptchaToken = this.getReCaptchaToken.bind(this);
   }
