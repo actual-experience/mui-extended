@@ -74,6 +74,7 @@
     "prettier-config-sodaru": "^1.0.0",
     "react": "^17.0.2 || ^18.0.0",
     "react-dom": "^17.0.2 || ^18.0.0",
+    "refractor": "^4.8.1",
     "rimraf": "^3.0.2"
   },
   "prettier": "prettier-config-sodaru",
@@ -129,8 +130,5 @@
       "optional": false
     }
   },
-  "sideEffects": false,
-  "dependencies": {
-    "refractor": "^4.8.1"
-  }
+  "sideEffects": false
 }
