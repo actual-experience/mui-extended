@@ -96,7 +96,7 @@ const loadDoc = async (path: string) => {
 };
 
 export const getStaticPropsFactory = (
-  docPath?: string
+  docPath: string
 ): GetStaticProps<StaticProps> => {
   return async () => {
     const pages = await listDemoPages();

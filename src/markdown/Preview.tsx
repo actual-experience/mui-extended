@@ -13,7 +13,8 @@ import {
   Link as MuiLink,
   Box,
   IconButton,
-  Tooltip
+  Tooltip,
+  generateUtilityClasses
 } from "@mui/material";
 import { ComponentPropsWithoutRef, createContext, useContext } from "react";
 import ReactMarkdown, { Components, Options } from "react-markdown";
@@ -24,6 +25,7 @@ import { darkThemeStyle } from "./styles/dark";
 import { lightThemeStyle } from "./styles/light";
 import Link from "next/link";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { combineClasses } from "../utils";
 
 SyntaxHighlighter.registerLanguage("typescript", typescript);
 
@@ -180,12 +182,19 @@ const A: Components["a"] = props => {
   );
 };
 
+export const markdownPreviewClasses = generateUtilityClasses(
+  "MuiExtendedPreview",
+  ["root"]
+);
+
 export const MarkdownPreview = ({
   children,
+  className,
   components,
   ReactMarkdownProps
 }: {
   children: string;
+  className?: string;
   components?: Options["components"];
   ReactMarkdownProps?: Omit<Options, "components">;
 }) => {
@@ -213,6 +222,7 @@ export const MarkdownPreview = ({
   return (
     <ReactMarkdown
       {...ReactMarkdownProps}
+      className={combineClasses(markdownPreviewClasses.root, className)}
       components={_components}
       remarkPlugins={[remarkGfm, ...(ReactMarkdownProps?.remarkPlugins || [])]}
     >
