@@ -22,7 +22,7 @@
     "clean": "npx rimraf dist",
     "prettier": "npx prettier --check --ignore-unknown ./**/*",
     "eslint": "npx eslint ./ --no-error-on-unmatched-pattern",
-    "tsc": "npx tsc",
+    "tsc": "npx tsc --project tsconfig.build.json",
     "next-build": "npx next build",
     "prebuild": "npm run prettier && npm run eslint && npm run clean",
     "build": "npm run tsc && npm run next-build",
