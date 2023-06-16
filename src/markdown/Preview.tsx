@@ -15,12 +15,7 @@ import {
   IconButton,
   Tooltip
 } from "@mui/material";
-import {
-  ComponentPropsWithoutRef,
-  createContext,
-  FunctionComponent,
-  useContext
-} from "react";
+import { ComponentPropsWithoutRef, createContext, useContext } from "react";
 import ReactMarkdown, { Components, Options } from "react-markdown";
 import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
@@ -185,10 +180,15 @@ const A: Components["a"] = props => {
   );
 };
 
-export const MarkdownPreview: FunctionComponent<{
+export const MarkdownPreview = ({
+  children,
+  components,
+  ReactMarkdownProps
+}: {
   children: string;
   components?: Options["components"];
-}> = ({ children, components = {} }) => {
+  ReactMarkdownProps?: Omit<Options, "components">;
+}) => {
   const _components: Options["components"] = {
     h1: H1,
     h2: H2,
@@ -211,7 +211,11 @@ export const MarkdownPreview: FunctionComponent<{
   };
 
   return (
-    <ReactMarkdown components={_components} remarkPlugins={[remarkGfm]}>
+    <ReactMarkdown
+      {...ReactMarkdownProps}
+      components={_components}
+      remarkPlugins={[remarkGfm, ...(ReactMarkdownProps?.remarkPlugins || [])]}
+    >
       {children}
     </ReactMarkdown>
   );

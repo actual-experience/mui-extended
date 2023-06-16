@@ -21,14 +21,18 @@ import {
   IconButton,
   IconButtonProps,
   Tab,
+  TabProps,
   Tabs,
+  TabsProps,
   TextareaAutosize,
   TextareaAutosizeProps,
-  Tooltip
+  Tooltip,
+  TooltipProps
 } from "@mui/material";
 import { format } from "prettier";
 import markdownParser from "prettier/parser-markdown";
 import {
+  ComponentPropsWithoutRef,
   ComponentType,
   createRef,
   FocusEvent,
@@ -36,7 +40,6 @@ import {
   forwardRef,
   Fragment,
   MouseEventHandler,
-  ReactNode,
   SyntheticEvent,
   useState
 } from "react";
@@ -52,18 +55,22 @@ export type MarkdownEditorMenuButtonAction = (
   selectionEnd: number
 ) => { content: string; selectionStart: number; selectionEnd: number };
 
-export type MarkdownEditorMenuButtonProps = IconButtonProps;
+export type MarkdownEditorMenuButtonProps = IconButtonProps & {
+  title: TooltipProps["title"];
+  TooltipProps?: Omit<TooltipProps, "title">;
+  containerProps?: ComponentPropsWithoutRef<"span">;
+};
 
 export const MarkdownEditorMenuButton = ({
   children,
   title,
+  TooltipProps,
+  containerProps,
   ...props
-}: MarkdownEditorMenuButtonProps & {
-  title: ReactNode;
-}) => {
+}: MarkdownEditorMenuButtonProps) => {
   return (
-    <Tooltip title={title} arrow placement="top">
-      <span>
+    <Tooltip arrow placement="top" {...TooltipProps} title={title}>
+      <span {...containerProps}>
         <IconButton {...props}>{children}</IconButton>
       </span>
     </Tooltip>
@@ -83,7 +90,10 @@ const defaultMenu: string[][] = [
 
 const DefaultButtons: Record<
   string,
-  ComponentType<MarkdownEditorMenuButtonProps>
+  ComponentType<{
+    onClick: MouseEventHandler<HTMLButtonElement>;
+    disabled?: boolean;
+  }>
 > = {
   bold: props => (
     <MarkdownEditorMenuButton title="Bold" {...props}>
@@ -488,7 +498,13 @@ const defaultActions: Record<string, MarkdownEditorMenuButtonAction> = {
 export type MarkdownEditorMenuProps = {
   onClick: (name: string) => void;
   menu?: string[][];
-  menuButtons?: Record<string, ComponentType<MarkdownEditorMenuButtonProps>>;
+  menuButtons?: Record<
+    string,
+    ComponentType<{
+      onClick: MouseEventHandler<HTMLButtonElement>;
+      disabled?: boolean;
+    }>
+  >;
   disabled?: boolean;
 };
 
@@ -536,29 +552,41 @@ export type MarkdownEditorHeaderProps = MarkdownEditorMenuProps & {
   hideTabs: boolean;
   selectedView: MarkdownEditorViewType;
   onViewChange: (selected: MarkdownEditorViewType) => void;
+  TabsProps?: Omit<TabsProps, "onChange" | "value">;
+  TabProps?: Omit<TabProps, "label">;
 };
 
 export const MarkdownEditorHeader = ({
   hideTabs,
   selectedView,
   onViewChange,
+  TabsProps,
+  TabProps,
   ...menuProps
 }: MarkdownEditorHeaderProps) => {
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     onViewChange(newValue == 0 ? "write" : "preview");
   };
-  // TODO: create Tabs with a themable size
   return (
     <Grid container>
       {!hideTabs ? (
         <Grid item flexGrow={1}>
           <Tabs
+            {...TabsProps}
             value={selectedView == "write" ? 0 : 1}
             onChange={handleChange}
-            sx={{ minHeight: 36 }}
+            sx={[{ minHeight: 36 }, TabsProps?.sx || {}].flat()}
           >
-            <Tab label="Write" sx={{ minHeight: 36, p: 1 }} />
-            <Tab label="Preview" sx={{ minHeight: 36, p: 1 }} />
+            <Tab
+              {...TabProps}
+              label="Write"
+              sx={[{ minHeight: 36, p: 1 }, TabProps?.sx || {}].flat()}
+            />
+            <Tab
+              {...TabProps}
+              label="Preview"
+              sx={[{ minHeight: 36, p: 1 }, TabProps?.sx || {}].flat()}
+            />
           </Tabs>
         </Grid>
       ) : null}
@@ -574,18 +602,26 @@ export const MarkdownEditorHeader = ({
 export type MarkdownEditorContentProps = TextareaAutosizeProps & {
   write: boolean;
   preview: boolean;
+  PreviewProps?: Omit<
+    ComponentPropsWithoutRef<typeof MarkdownPreview>,
+    "children"
+  >;
 };
 
 export const MarkdownEditorContent = forwardRef<
   HTMLTextAreaElement,
   MarkdownEditorContentProps
->(function MarkdownEditorContent({ write, preview, value, ...props }, ref) {
+>(function MarkdownEditorContent(
+  { write, preview, value, PreviewProps, ...props },
+  ref
+) {
   const style = {
     ...props.style,
     width: "100%",
     resize: "none",
     boxSizing: "border-box"
   } as TextareaAutosizeProps["style"];
+  const stringChild = value?.toString() || "";
   return (
     <Grid container>
       <Grid item xs={12} sx={{ display: write ? "initial" : "none" }}>
@@ -600,7 +636,7 @@ export const MarkdownEditorContent = forwardRef<
       </Grid>
       {preview ? (
         <Grid item xs={12}>
-          <MarkdownPreview>{value as string}</MarkdownPreview>
+          <MarkdownPreview {...PreviewProps}>{stringChild}</MarkdownPreview>
         </Grid>
       ) : null}
     </Grid>
@@ -627,6 +663,8 @@ const createChangeEvent = (
 export type MarkdownEditorProps = TextareaAutosizeProps & {
   inlinePreview?: boolean;
   menuActions?: Record<string, MarkdownEditorMenuButtonAction>;
+  HeaderProps?: Pick<MarkdownEditorHeaderProps, "TabProps" | "TabsProps">;
+  PreviewProps?: MarkdownEditorContentProps["PreviewProps"];
 } & Pick<MarkdownEditorHeaderProps, "menu" | "menuButtons">;
 
 /**
@@ -654,6 +692,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       menuActions,
       inlinePreview: alwaysPreview = false,
       onBlur,
+      HeaderProps,
       ...props
     },
     ref
@@ -730,6 +769,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       >
         <Grid item xs={12}>
           <MarkdownEditorHeader
+            {...HeaderProps}
             onClick={onMenuButtonClick}
             hideTabs={isMobile || alwaysPreview}
             selectedView={selectedView}
