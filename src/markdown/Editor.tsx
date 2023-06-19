@@ -62,11 +62,10 @@ export type MarkdownEditorMenuButtonProps = IconButtonProps & {
   containerProps?: ComponentPropsWithoutRef<"span">;
 };
 
-const buttonClasses = generateUtilityClasses("MuiMarkdownEditorMenuButton", [
-  "root",
-  "tooltip",
-  "button"
-]);
+const buttonClasses = generateUtilityClasses(
+  "MuiExtendedMarkdownEditorMenuButton",
+  ["root", "tooltip", "button"]
+);
 
 export const MarkdownEditorMenuButton = ({
   children,
@@ -648,13 +647,10 @@ export const MarkdownEditorHeader = ({
   );
 };
 
-const contentClasses = generateUtilityClasses("MuiExtended", [
-  "root",
-  "textarea",
-  "textareaContainer",
-  "preview",
-  "previewContainer"
-]);
+const contentClasses = generateUtilityClasses(
+  "MuiExtendedMarkdownEditorContent",
+  ["root", "textarea", "textareaContainer", "preview", "previewContainer"]
+);
 
 export type MarkdownEditorContentProps = TextareaAutosizeProps & {
   write: boolean;

@@ -183,7 +183,7 @@ const A: Components["a"] = props => {
 };
 
 export const markdownPreviewClasses = generateUtilityClasses(
-  "MuiExtendedPreview",
+  "MuiExtendedMarkdownPreview",
   ["root"]
 );
 
