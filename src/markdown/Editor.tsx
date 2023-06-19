@@ -58,7 +58,7 @@ export type MarkdownEditorMenuButtonAction = (
 
 export type MarkdownEditorMenuButtonProps = IconButtonProps & {
   title: TooltipProps["title"];
-  TooltipProps?: Omit<TooltipProps, "title">;
+  TooltipProps?: Omit<TooltipProps, "title" | "children">;
   containerProps?: ComponentPropsWithoutRef<"span">;
 };
 
@@ -113,10 +113,7 @@ const defaultMenu: string[][] = [
 
 const DefaultButtons: Record<
   string,
-  ComponentType<{
-    onClick: () => void;
-    disabled?: boolean;
-  }>
+  ComponentType<Omit<MarkdownEditorMenuButtonProps, "title">>
 > = {
   bold: props => (
     <MarkdownEditorMenuButton title="Bold" {...props}>
@@ -534,6 +531,10 @@ export type MarkdownEditorMenuProps = {
       disabled?: boolean;
     }>
   >;
+  MenuButtonProps?: Omit<
+    MarkdownEditorMenuButtonProps,
+    "title" | "onClick" | "children"
+  >;
   disabled?: boolean;
 };
 
@@ -541,6 +542,7 @@ export const MarkdownEditorMenu = ({
   onClick,
   menu,
   menuButtons,
+  MenuButtonProps,
   disabled
 }: MarkdownEditorMenuProps) => {
   const _menu = menu || defaultMenu;
@@ -574,6 +576,7 @@ export const MarkdownEditorMenu = ({
               return (
                 <MenuItemComponent
                   key={j}
+                  {...MenuButtonProps}
                   onClick={_onClick}
                   disabled={disabled}
                 />
@@ -730,7 +733,16 @@ const createChangeEvent = (
 export type MarkdownEditorProps = TextareaAutosizeProps & {
   inlinePreview?: boolean;
   menuActions?: Record<string, MarkdownEditorMenuButtonAction>;
-  HeaderProps?: Pick<MarkdownEditorHeaderProps, "TabProps" | "TabsProps">;
+  HeaderProps?: Omit<
+    MarkdownEditorHeaderProps,
+    | "onClick"
+    | "hideTabs"
+    | "selectedView"
+    | "onViewChange"
+    | "menu"
+    | "menuButtons"
+    | "disabled"
+  >;
   PreviewProps?: MarkdownEditorContentProps["PreviewProps"];
 } & Pick<MarkdownEditorHeaderProps, "menu" | "menuButtons">;
 
