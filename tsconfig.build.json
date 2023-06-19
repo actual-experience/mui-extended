@@ -2,10 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "noEmit": false
+    "noEmit": false,
+    "jsx": "react-jsx"
   },
-  "include": [
-    "next-env.d.ts",
-    "src"
-  ],
+  "include": ["next-env.d.ts", "src"]
 }
