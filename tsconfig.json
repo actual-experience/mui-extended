@@ -4,7 +4,7 @@
     "declaration": true,
     "target": "ES5",
     "module": "esnext",
-    "rootDir": "./src",
+    "rootDir": ".",
     "lib": [
       "ESNext",
       "DOM",
@@ -25,7 +25,9 @@
   },
   "include": [
     "next-env.d.ts",
-    "src"
+    "src",
+    "pages",
+    "demoUtils"
   ],
   "exclude": [
     "node_modules"

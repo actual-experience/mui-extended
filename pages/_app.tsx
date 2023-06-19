@@ -43,7 +43,7 @@ const MuiExtendedDemoApp = ({
                 </Typography>
                 <hr />
                 <MarkdownPreview>{docContent}</MarkdownPreview>
-                {Component["noDemo"] === undefined ? (
+                {(Component as any)["noDemo"] === undefined ? (
                   <Paper variant="outlined">
                     <Box p={2}>
                       <Typography variant="h5">Demo</Typography>

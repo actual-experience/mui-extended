@@ -75,7 +75,7 @@ export const convertDemoPagesToTreeMenuProps = (
   return props;
 };
 
-export const DemoMenu = ({ pages }: { pages?: string[] }) => {
+export const DemoMenu = ({ pages = [] }: { pages?: string[] }) => {
   return (
     <span>
       <Box p={1}></Box>

@@ -8,10 +8,7 @@ export const Meta: FunctionComponent<{ meta?: DocMeta }> = ({ meta }) => {
   if (!meta) {
     return <></>;
   }
-  const {
-    title,
-    meta: { description, ...metaTags }
-  } = meta;
+  const { title, meta: { description, ...metaTags } = {} } = meta;
 
   const domain = process.env.NEXT_PUBLIC_HOST_DOMAIN;
   const url = `https://${domain}${router.asPath}`;

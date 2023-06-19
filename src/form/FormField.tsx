@@ -59,7 +59,8 @@ export const withFormField = <T extends PropsWithChildren<FormFieldAttributes>>(
 
   const DecoratedFormField = forwardRef<
     HTMLTextAreaElement | HTMLInputElement,
-    T
+    Omit<T, Exclude<keyof ControlledInputAttributes, "name">> &
+      Partial<ControlledInputAttributes>
   >(function FormField({ children, name, label, ...props }, ref) {
     const formContext = useFormContext();
 
