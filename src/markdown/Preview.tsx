@@ -187,16 +187,20 @@ export const markdownPreviewClasses = generateUtilityClasses(
   ["root"]
 );
 
+type PluggableList = NonNullable<Options["remarkPlugins"]>;
+
 export const MarkdownPreview = ({
   children,
   className,
   components,
-  ReactMarkdownProps
+  ReactMarkdownProps,
+  includeGfm = true
 }: {
   children: string;
   className?: string;
   components?: Options["components"];
-  ReactMarkdownProps?: Omit<Options, "components">;
+  ReactMarkdownProps?: Omit<Options, "components" | "className">;
+  includeGfm?: boolean;
 }) => {
   const _components: Options["components"] = {
     h1: H1,
@@ -224,7 +228,10 @@ export const MarkdownPreview = ({
       {...ReactMarkdownProps}
       className={combineClasses(markdownPreviewClasses.root, className)}
       components={_components}
-      remarkPlugins={[remarkGfm, ...(ReactMarkdownProps?.remarkPlugins || [])]}
+      remarkPlugins={([] as PluggableList).concat(
+        includeGfm ? [remarkGfm] : [],
+        ReactMarkdownProps?.remarkPlugins || []
+      )}
     >
       {children}
     </ReactMarkdown>
