@@ -189,6 +189,26 @@ export const markdownPreviewClasses = generateUtilityClasses(
 
 type PluggableList = NonNullable<Options["remarkPlugins"]>;
 
+export const defaultComponents = {
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  h4: H4,
+  h5: H5,
+  h6: H6,
+  p: P,
+  blockquote: Blockquote,
+  table: TableComponent,
+  img: Img,
+  thead: TableHead,
+  tbody: TableBody,
+  th: TableCell as unknown as Components["th"],
+  tr: TableRow,
+  td: TableCell as unknown as Components["td"],
+  code: SyntaxHighLightedCodeComponent,
+  a: A
+};
+
 export const MarkdownPreview = ({
   children,
   className,
@@ -203,23 +223,7 @@ export const MarkdownPreview = ({
   includeGfm?: boolean;
 }) => {
   const _components: Options["components"] = {
-    h1: H1,
-    h2: H2,
-    h3: H3,
-    h4: H4,
-    h5: H5,
-    h6: H6,
-    p: P,
-    blockquote: Blockquote,
-    table: TableComponent,
-    img: Img,
-    thead: TableHead,
-    tbody: TableBody,
-    th: TableCell as unknown as Components["th"],
-    tr: TableRow,
-    td: TableCell as unknown as Components["td"],
-    code: SyntaxHighLightedCodeComponent,
-    a: A,
+    ...defaultComponents,
     ...components
   };
 
