@@ -199,7 +199,7 @@ export const MarkdownPreview = ({
   children: string;
   className?: string;
   components?: Options["components"];
-  ReactMarkdownProps?: Omit<Options, "components" | "className">;
+  ReactMarkdownProps?: Omit<Options, "components" | "className" | "children">;
   includeGfm?: boolean;
 }) => {
   const _components: Options["components"] = {
