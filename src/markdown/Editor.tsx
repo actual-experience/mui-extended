@@ -41,6 +41,7 @@ import {
   forwardRef,
   Fragment,
   MouseEventHandler,
+  ReactNode,
   SyntheticEvent,
   useState
 } from "react";
@@ -662,13 +663,14 @@ export type MarkdownEditorContentProps = TextareaAutosizeProps & {
     ComponentPropsWithoutRef<typeof MarkdownPreview>,
     "children"
   >;
+  renderPreview?: (value: string) => ReactNode;
 };
 
 export const MarkdownEditorContent = forwardRef<
   HTMLTextAreaElement,
   MarkdownEditorContentProps
 >(function MarkdownEditorContent(
-  { write, preview, value, PreviewProps, ...props },
+  { write, preview, value, PreviewProps, renderPreview, ...props },
   ref
 ) {
   const style = {
@@ -698,15 +700,19 @@ export const MarkdownEditorContent = forwardRef<
       </Grid>
       {preview ? (
         <Grid className={contentClasses.previewContainer} item xs={12}>
-          <MarkdownPreview
-            {...PreviewProps}
-            className={combineClasses(
-              contentClasses.preview,
-              PreviewProps?.className
-            )}
-          >
-            {stringChild}
-          </MarkdownPreview>
+          {renderPreview ? (
+            renderPreview(stringChild)
+          ) : (
+            <MarkdownPreview
+              {...PreviewProps}
+              className={combineClasses(
+                contentClasses.preview,
+                PreviewProps?.className
+              )}
+            >
+              {stringChild}
+            </MarkdownPreview>
+          )}
         </Grid>
       ) : null}
     </Grid>
@@ -744,6 +750,7 @@ export type MarkdownEditorProps = TextareaAutosizeProps & {
     | "disabled"
   >;
   PreviewProps?: MarkdownEditorContentProps["PreviewProps"];
+  renderPreview?: MarkdownEditorContentProps["renderPreview"];
 } & Pick<MarkdownEditorHeaderProps, "menu" | "menuButtons">;
 
 const editorClasses = generateUtilityClasses("MuiExtendedMarkdownEditor", [
