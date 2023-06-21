@@ -527,10 +527,7 @@ export type MarkdownEditorMenuProps = {
   menu?: string[][];
   menuButtons?: Record<
     string,
-    ComponentType<{
-      onClick: () => void;
-      disabled?: boolean;
-    }>
+    ComponentType<Omit<MarkdownEditorMenuButtonProps, "title">>
   >;
   MenuButtonProps?: Omit<
     MarkdownEditorMenuButtonProps,
