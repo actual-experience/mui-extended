@@ -57,7 +57,7 @@ export type MarkdownEditorMenuButtonAction = (
   selectionEnd: number
 ) => { content: string; selectionStart: number; selectionEnd: number };
 
-export type MarkdownEditorMenuButtonProps = IconButtonProps & {
+export type MarkdownEditorMenuButtonProps = Omit<IconButtonProps, "title"> & {
   title: TooltipProps["title"];
   TooltipProps?: Omit<TooltipProps, "title" | "children">;
   containerProps?: ComponentPropsWithoutRef<"span">;
