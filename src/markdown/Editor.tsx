@@ -198,7 +198,7 @@ const DefaultButtons: Record<
   )
 };
 
-const getSelectedChunk = (
+export const getSelectedChunk = (
   content: string,
   selectionStart: number,
   selectionEnd: number
@@ -210,7 +210,7 @@ const getSelectedChunk = (
   return { start, selected, end };
 };
 
-const getSelectedLines = (
+export const getSelectedLines = (
   content: string,
   selectionStart: number,
   selectionEnd: number
