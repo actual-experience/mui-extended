@@ -21,14 +21,19 @@ import {
   IconButton,
   IconButtonProps,
   Tab,
+  TabProps,
   Tabs,
+  TabsProps,
   TextareaAutosize,
   TextareaAutosizeProps,
-  Tooltip
+  Tooltip,
+  TooltipProps,
+  generateUtilityClasses
 } from "@mui/material";
 import { format } from "prettier";
 import markdownParser from "prettier/parser-markdown";
 import {
+  ComponentPropsWithoutRef,
   ComponentType,
   createRef,
   FocusEvent,
@@ -43,7 +48,7 @@ import {
 import { useMobile } from "../utils/useMobile";
 import InlineCodeIcon from "./icons/inlineCode";
 import { MarkdownPreview } from "./Preview";
-import { createSyntheticEvent } from "../utils";
+import { combineClasses, createSyntheticEvent } from "../utils";
 
 export type MarkdownEditorMenuButtonAction = (
   name: string,
@@ -52,19 +57,45 @@ export type MarkdownEditorMenuButtonAction = (
   selectionEnd: number
 ) => { content: string; selectionStart: number; selectionEnd: number };
 
-export type MarkdownEditorMenuButtonProps = IconButtonProps;
+export type MarkdownEditorMenuButtonProps = Omit<IconButtonProps, "title"> & {
+  title: TooltipProps["title"];
+  TooltipProps?: Omit<TooltipProps, "title" | "children">;
+  containerProps?: ComponentPropsWithoutRef<"span">;
+};
+
+const buttonClasses = generateUtilityClasses(
+  "MuiExtendedMarkdownEditorMenuButton",
+  ["root", "tooltip", "button"]
+);
 
 export const MarkdownEditorMenuButton = ({
   children,
   title,
+  TooltipProps,
+  containerProps,
   ...props
-}: MarkdownEditorMenuButtonProps & {
-  title: ReactNode;
-}) => {
+}: MarkdownEditorMenuButtonProps) => {
   return (
-    <Tooltip title={title} arrow placement="top">
-      <span>
-        <IconButton {...props}>{children}</IconButton>
+    <Tooltip
+      arrow
+      placement="top"
+      {...TooltipProps}
+      className={combineClasses(buttonClasses.tooltip, TooltipProps?.className)}
+      title={title}
+    >
+      <span
+        {...containerProps}
+        className={combineClasses(
+          buttonClasses.root,
+          containerProps?.className
+        )}
+      >
+        <IconButton
+          {...props}
+          className={combineClasses(buttonClasses.button, props.className)}
+        >
+          {children}
+        </IconButton>
       </span>
     </Tooltip>
   );
@@ -83,7 +114,7 @@ const defaultMenu: string[][] = [
 
 const DefaultButtons: Record<
   string,
-  ComponentType<MarkdownEditorMenuButtonProps>
+  ComponentType<Omit<MarkdownEditorMenuButtonProps, "title">>
 > = {
   bold: props => (
     <MarkdownEditorMenuButton title="Bold" {...props}>
@@ -167,7 +198,7 @@ const DefaultButtons: Record<
   )
 };
 
-const getSelectedChunk = (
+export const getSelectedChunk = (
   content: string,
   selectionStart: number,
   selectionEnd: number
@@ -179,7 +210,7 @@ const getSelectedChunk = (
   return { start, selected, end };
 };
 
-const getSelectedLines = (
+export const getSelectedLines = (
   content: string,
   selectionStart: number,
   selectionEnd: number
@@ -457,7 +488,6 @@ const defaultActions: Record<string, MarkdownEditorMenuButtonAction> = {
       "| -------------- | -------------- |",
       "| value 1    | value2     |",
       ...selected,
-
       ...end
     ].join("\n");
 
@@ -485,10 +515,24 @@ const defaultActions: Record<string, MarkdownEditorMenuButtonAction> = {
   }
 };
 
+const menuClasses = generateUtilityClasses("MuiExtendedMarkdownEditorMenu", [
+  "root",
+  "group",
+  "divider",
+  "disabled"
+]);
+
 export type MarkdownEditorMenuProps = {
   onClick: (name: string) => void;
   menu?: string[][];
-  menuButtons?: Record<string, ComponentType<MarkdownEditorMenuButtonProps>>;
+  menuButtons?: Record<
+    string,
+    ComponentType<Omit<MarkdownEditorMenuButtonProps, "title">>
+  >;
+  MenuButtonProps?: Omit<
+    MarkdownEditorMenuButtonProps,
+    "title" | "onClick" | "children"
+  >;
   disabled?: boolean;
 };
 
@@ -496,18 +540,30 @@ export const MarkdownEditorMenu = ({
   onClick,
   menu,
   menuButtons,
+  MenuButtonProps,
   disabled
 }: MarkdownEditorMenuProps) => {
   const _menu = menu || defaultMenu;
   const _menuButtons = { ...DefaultButtons, ...menuButtons };
   return (
-    <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+    <Box
+      className={combineClasses(
+        menuClasses.root,
+        disabled ? menuClasses.disabled : ""
+      )}
+      sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}
+    >
       {_menu.map((menuGroup, i) => (
         <Fragment key={i}>
           {i != 0 ? (
-            <Divider orientation="vertical" flexItem variant="middle" />
+            <Divider
+              className={menuClasses.divider}
+              orientation="vertical"
+              flexItem
+              variant="middle"
+            />
           ) : null}
-          <ButtonGroup>
+          <ButtonGroup className={menuClasses.group}>
             {menuGroup.map((menuItem, j) => {
               const MenuItemComponent = _menuButtons[menuItem];
               const _onClick = () => {
@@ -518,6 +574,7 @@ export const MarkdownEditorMenu = ({
               return (
                 <MenuItemComponent
                   key={j}
+                  {...MenuButtonProps}
                   onClick={_onClick}
                   disabled={disabled}
                 />
@@ -536,34 +593,54 @@ export type MarkdownEditorHeaderProps = MarkdownEditorMenuProps & {
   hideTabs: boolean;
   selectedView: MarkdownEditorViewType;
   onViewChange: (selected: MarkdownEditorViewType) => void;
+  TabsProps?: Omit<TabsProps, "onChange" | "value">;
+  TabProps?: Omit<TabProps, "label">;
 };
+
+const headerClasses = generateUtilityClasses(
+  "MuiExtendedMarkdownEditorHeader",
+  ["root", "tabsContainer", "tabs", "tab", "menu"]
+);
 
 export const MarkdownEditorHeader = ({
   hideTabs,
   selectedView,
   onViewChange,
+  TabsProps,
+  TabProps,
   ...menuProps
 }: MarkdownEditorHeaderProps) => {
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     onViewChange(newValue == 0 ? "write" : "preview");
   };
-  // TODO: create Tabs with a themable size
   return (
-    <Grid container>
+    <Grid container className={headerClasses.root}>
       {!hideTabs ? (
-        <Grid item flexGrow={1}>
+        <Grid className={headerClasses.tabsContainer} item flexGrow={1}>
           <Tabs
+            {...TabsProps}
+            className={combineClasses(headerClasses.tabs, TabsProps?.className)}
             value={selectedView == "write" ? 0 : 1}
             onChange={handleChange}
-            sx={{ minHeight: 36 }}
+            sx={[{ minHeight: 36 }, TabsProps?.sx || {}].flat()}
           >
-            <Tab label="Write" sx={{ minHeight: 36, p: 1 }} />
-            <Tab label="Preview" sx={{ minHeight: 36, p: 1 }} />
+            <Tab
+              {...TabProps}
+              className={combineClasses(headerClasses.tab, TabProps?.className)}
+              label="Write"
+              sx={[{ minHeight: 36, p: 1 }, TabProps?.sx || {}].flat()}
+            />
+            <Tab
+              {...TabProps}
+              className={combineClasses(headerClasses.tab, TabProps?.className)}
+              label="Preview"
+              sx={[{ minHeight: 36, p: 1 }, TabProps?.sx || {}].flat()}
+            />
           </Tabs>
         </Grid>
       ) : null}
       {hideTabs || selectedView == "write" ? (
-        <Grid item>
+        <Grid item className={headerClasses.menu}>
           <MarkdownEditorMenu {...menuProps} />
         </Grid>
       ) : null}
@@ -571,36 +648,68 @@ export const MarkdownEditorHeader = ({
   );
 };
 
+const contentClasses = generateUtilityClasses(
+  "MuiExtendedMarkdownEditorContent",
+  ["root", "textarea", "textareaContainer", "preview", "previewContainer"]
+);
+
 export type MarkdownEditorContentProps = TextareaAutosizeProps & {
   write: boolean;
   preview: boolean;
+  PreviewProps?: Omit<
+    ComponentPropsWithoutRef<typeof MarkdownPreview>,
+    "children"
+  >;
+  renderPreview?: (value: string) => ReactNode;
 };
 
 export const MarkdownEditorContent = forwardRef<
   HTMLTextAreaElement,
   MarkdownEditorContentProps
->(function MarkdownEditorContent({ write, preview, value, ...props }, ref) {
+>(function MarkdownEditorContent(
+  { write, preview, value, PreviewProps, renderPreview, ...props },
+  ref
+) {
   const style = {
     ...props.style,
     width: "100%",
     resize: "none",
     boxSizing: "border-box"
   } as TextareaAutosizeProps["style"];
+  const stringChild = value?.toString() || "";
   return (
-    <Grid container>
-      <Grid item xs={12} sx={{ display: write ? "initial" : "none" }}>
+    <Grid container className={contentClasses.root}>
+      <Grid
+        className={contentClasses.textareaContainer}
+        item
+        xs={12}
+        sx={{ display: write ? "initial" : "none" }}
+      >
         <TextareaAutosize
           minRows={10}
           maxRows={20}
           {...props}
+          className={combineClasses(contentClasses.textarea, props.className)}
           value={value}
           style={style}
           ref={ref}
         />
       </Grid>
       {preview ? (
-        <Grid item xs={12}>
-          <MarkdownPreview>{value as string}</MarkdownPreview>
+        <Grid className={contentClasses.previewContainer} item xs={12}>
+          {renderPreview ? (
+            renderPreview(stringChild)
+          ) : (
+            <MarkdownPreview
+              {...PreviewProps}
+              className={combineClasses(
+                contentClasses.preview,
+                PreviewProps?.className
+              )}
+            >
+              {stringChild}
+            </MarkdownPreview>
+          )}
         </Grid>
       ) : null}
     </Grid>
@@ -627,7 +736,27 @@ const createChangeEvent = (
 export type MarkdownEditorProps = TextareaAutosizeProps & {
   inlinePreview?: boolean;
   menuActions?: Record<string, MarkdownEditorMenuButtonAction>;
+  HeaderProps?: Omit<
+    MarkdownEditorHeaderProps,
+    | "onClick"
+    | "hideTabs"
+    | "selectedView"
+    | "onViewChange"
+    | "menu"
+    | "menuButtons"
+    | "disabled"
+  >;
+  PreviewProps?: MarkdownEditorContentProps["PreviewProps"];
+  renderPreview?: MarkdownEditorContentProps["renderPreview"];
 } & Pick<MarkdownEditorHeaderProps, "menu" | "menuButtons">;
+
+const editorClasses = generateUtilityClasses("MuiExtendedMarkdownEditor", [
+  "root",
+  "header",
+  "disabled",
+  "contentContainer",
+  "content"
+]);
 
 /**
  * RTE editor for markdown content
@@ -654,6 +783,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       menuActions,
       inlinePreview: alwaysPreview = false,
       onBlur,
+      HeaderProps,
       ...props
     },
     ref
@@ -727,9 +857,14 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
         ref={ref}
         onBlur={_onBlur}
         onClick={_onClick}
+        className={combineClasses(
+          editorClasses.root,
+          props.disabled ? editorClasses.disabled : ""
+        )}
       >
-        <Grid item xs={12}>
+        <Grid className={editorClasses.header} item xs={12}>
           <MarkdownEditorHeader
+            {...HeaderProps}
             onClick={onMenuButtonClick}
             hideTabs={isMobile || alwaysPreview}
             selectedView={selectedView}
@@ -739,9 +874,10 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
             disabled={props.disabled}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid className={editorClasses.contentContainer} item xs={12}>
           <MarkdownEditorContent
             {...props}
+            className={combineClasses(editorClasses.content, props.className)}
             write={isMobile || alwaysPreview || selectedView == "write"}
             preview={isMobile || alwaysPreview || selectedView == "preview"}
             ref={textareaRef}
@@ -751,3 +887,11 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
     );
   }
 );
+
+export {
+  buttonClasses as markdownEditorMenuButtonClasses,
+  menuClasses as markdownEditorMenuClasses,
+  headerClasses as markdownEditorHeaderClasses,
+  contentClasses as markdownEditorContentClasses,
+  editorClasses as markdownEditorClasses
+};

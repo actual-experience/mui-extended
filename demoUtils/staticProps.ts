@@ -26,11 +26,11 @@ export type StaticProps = {
 export const listDemoPages = async () => {
   const dir = process.cwd();
   const pagesDir = join(dir, "pages");
-  const pages = [];
+  const pages: string[] = [];
   if (existsSync(pagesDir)) {
     const dirsToParse = [pagesDir];
     while (dirsToParse.length > 0) {
-      const dirToParse = dirsToParse.shift();
+      const dirToParse = dirsToParse.shift()!;
       const files = await readdir(dirToParse);
       const normalFiles = files.filter(f => !f.startsWith("_"));
       await Promise.all(
@@ -70,7 +70,7 @@ const extractDetailsFromDocContent = (docContent: string) => {
     // meta detected
     const endOfMeta = content.indexOf(META_END);
     const metaStr = content.substring(META_START.length, endOfMeta);
-    meta = load(metaStr);
+    meta = load(metaStr) as any;
 
     content = content.substring(endOfMeta + META_END.length);
 
@@ -96,7 +96,7 @@ const loadDoc = async (path: string) => {
 };
 
 export const getStaticPropsFactory = (
-  docPath?: string
+  docPath: string
 ): GetStaticProps<StaticProps> => {
   return async () => {
     const pages = await listDemoPages();

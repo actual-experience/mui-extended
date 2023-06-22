@@ -13,14 +13,10 @@ import {
   Link as MuiLink,
   Box,
   IconButton,
-  Tooltip
+  Tooltip,
+  generateUtilityClasses
 } from "@mui/material";
-import {
-  ComponentPropsWithoutRef,
-  createContext,
-  FunctionComponent,
-  useContext
-} from "react";
+import { ComponentPropsWithoutRef, createContext, useContext } from "react";
 import ReactMarkdown, { Components, Options } from "react-markdown";
 import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkGfm from "remark-gfm";
@@ -29,6 +25,7 @@ import { darkThemeStyle } from "./styles/dark";
 import { lightThemeStyle } from "./styles/light";
 import Link from "next/link";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { combineClasses } from "../utils";
 
 SyntaxHighlighter.registerLanguage("typescript", typescript);
 
@@ -185,33 +182,61 @@ const A: Components["a"] = props => {
   );
 };
 
-export const MarkdownPreview: FunctionComponent<{
+export const markdownPreviewClasses = generateUtilityClasses(
+  "MuiExtendedMarkdownPreview",
+  ["root"]
+);
+
+type PluggableList = NonNullable<Options["remarkPlugins"]>;
+
+export const defaultComponents = {
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  h4: H4,
+  h5: H5,
+  h6: H6,
+  p: P,
+  blockquote: Blockquote,
+  table: TableComponent,
+  img: Img,
+  thead: TableHead,
+  tbody: TableBody,
+  th: TableCell as unknown as Components["th"],
+  tr: TableRow,
+  td: TableCell as unknown as Components["td"],
+  code: SyntaxHighLightedCodeComponent,
+  a: A
+};
+
+export const MarkdownPreview = ({
+  children,
+  className,
+  components,
+  ReactMarkdownProps,
+  includeGfm = true
+}: {
   children: string;
+  className?: string;
   components?: Options["components"];
-}> = ({ children, components = {} }) => {
+  ReactMarkdownProps?: Omit<Options, "components" | "className" | "children">;
+  includeGfm?: boolean;
+}) => {
   const _components: Options["components"] = {
-    h1: H1,
-    h2: H2,
-    h3: H3,
-    h4: H4,
-    h5: H5,
-    h6: H6,
-    p: P,
-    blockquote: Blockquote,
-    table: TableComponent,
-    img: Img,
-    thead: TableHead,
-    tbody: TableBody,
-    th: TableCell as unknown as Components["th"],
-    tr: TableRow,
-    td: TableCell as unknown as Components["td"],
-    code: SyntaxHighLightedCodeComponent,
-    a: A,
+    ...defaultComponents,
     ...components
   };
 
   return (
-    <ReactMarkdown components={_components} remarkPlugins={[remarkGfm]}>
+    <ReactMarkdown
+      {...ReactMarkdownProps}
+      className={combineClasses(markdownPreviewClasses.root, className)}
+      components={_components}
+      remarkPlugins={([] as PluggableList).concat(
+        includeGfm ? [remarkGfm] : [],
+        ReactMarkdownProps?.remarkPlugins || []
+      )}
+    >
       {children}
     </ReactMarkdown>
   );
