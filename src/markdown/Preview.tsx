@@ -63,10 +63,10 @@ const SyntaxHighLightedCodeComponent: Components["code"] = ({
       }}
     >
       <SyntaxHighlighter
-        style={codeComponentContext.style === false ? undefined : style}
-        language={match?.[1]}
+        style={codeComponentContext.style ?? style}
+        language={match?.[1] ?? "javascript"}
         PreTag="div"
-        wrapLongLines={true}
+        wrapLongLines
         {...props}
       >
         {children}
