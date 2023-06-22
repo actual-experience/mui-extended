@@ -31,7 +31,12 @@ SyntaxHighlighter.registerLanguage("typescript", typescript);
 
 const Span = styled("span")``;
 
-type CodeComponentContextType = { enableCopy?: boolean; maxHeight?: string };
+type CodeComponentContextType = {
+  enableCopy?: boolean;
+  maxHeight?: string;
+  /** set to false to disable default styles, to allow global stylesheets instead */
+  style?: any;
+};
 const CodeComponentContext = createContext<CodeComponentContextType>({});
 
 export const CodeComponentContextProvider = CodeComponentContext.Provider;
@@ -58,8 +63,8 @@ const SyntaxHighLightedCodeComponent: Components["code"] = ({
       }}
     >
       <SyntaxHighlighter
-        style={style}
-        language={match ? match[1] : "javascript"}
+        style={codeComponentContext.style === false ? undefined : style}
+        language={match?.[1]}
         PreTag="div"
         wrapLongLines={true}
         {...props}
