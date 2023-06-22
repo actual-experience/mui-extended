@@ -31,7 +31,7 @@ SyntaxHighlighter.registerLanguage("typescript", typescript);
 
 const Span = styled("span")``;
 
-type CodeComponentContextType = {
+export type CodeComponentContextType = {
   enableCopy?: boolean;
   maxHeight?: string;
   /** set to false to disable default styles, to allow global stylesheets instead */
