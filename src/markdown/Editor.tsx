@@ -784,6 +784,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       inlinePreview: alwaysPreview = false,
       onBlur,
       HeaderProps,
+      className,
       ...props
     },
     ref
@@ -859,7 +860,8 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
         onClick={_onClick}
         className={combineClasses(
           editorClasses.root,
-          props.disabled ? editorClasses.disabled : ""
+          props.disabled ? editorClasses.disabled : "",
+          className
         )}
       >
         <Grid className={editorClasses.header} item xs={12}>
@@ -877,7 +879,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
         <Grid className={editorClasses.contentContainer} item xs={12}>
           <MarkdownEditorContent
             {...props}
-            className={combineClasses(editorClasses.content, props.className)}
+            className={editorClasses.content}
             write={isMobile || alwaysPreview || selectedView == "write"}
             preview={isMobile || alwaysPreview || selectedView == "preview"}
             ref={textareaRef}
