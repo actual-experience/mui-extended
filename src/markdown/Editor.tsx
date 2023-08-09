@@ -842,7 +842,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
           if (event.target != textareaRef.current && textareaRef.current) {
             event.target = textareaRef.current;
           }
-          if (!formatOnBlur) {
+          if (formatOnBlur) {
             onMenuButtonClick("format");
           }
           if (onBlur) {
