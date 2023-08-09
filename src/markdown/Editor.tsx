@@ -734,6 +734,9 @@ const createChangeEvent = (
 };
 
 export type MarkdownEditorProps = TextareaAutosizeProps & {
+  /**
+   * @default false
+   */
   inlinePreview?: boolean;
   menuActions?: Record<string, MarkdownEditorMenuButtonAction>;
   HeaderProps?: Omit<
@@ -748,6 +751,10 @@ export type MarkdownEditorProps = TextareaAutosizeProps & {
   >;
   PreviewProps?: MarkdownEditorContentProps["PreviewProps"];
   renderPreview?: MarkdownEditorContentProps["renderPreview"];
+  /**
+   * @default true
+   */
+  formatOnBlur?: boolean;
 } & Pick<MarkdownEditorHeaderProps, "menu" | "menuButtons">;
 
 const editorClasses = generateUtilityClasses("MuiExtendedMarkdownEditor", [
@@ -784,6 +791,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       inlinePreview: alwaysPreview = false,
       onBlur,
       HeaderProps,
+      formatOnBlur = true,
       ...props
     },
     ref
@@ -834,7 +842,9 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
           if (event.target != textareaRef.current && textareaRef.current) {
             event.target = textareaRef.current;
           }
-          onMenuButtonClick("format");
+          if (!formatOnBlur) {
+            onMenuButtonClick("format");
+          }
           if (onBlur) {
             onBlur(event as FocusEvent<HTMLTextAreaElement>);
           }
